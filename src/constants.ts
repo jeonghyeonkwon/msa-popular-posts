@@ -1,6 +1,7 @@
 import { KafkaOptions, Transport } from '@nestjs/microservices';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { Users } from './users/users.entities';
+import { Posts } from './posts/posts.entities';
 
 export const KAFKA_OPTION: KafkaOptions = {
   transport: Transport.KAFKA,
@@ -22,7 +23,7 @@ export const TYPEORM_OPTION: TypeOrmModuleOptions = {
   username: process.env.DB_USER,
   password: process.env.DB_PASS,
   database: process.env.DB_DATABASE,
-  entities: [Users],
-  synchronize: true,
+  entities: [Users, Posts],
+  synchronize: false,
   logging: true,
 };

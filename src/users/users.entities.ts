@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { Posts } from 'src/posts/posts.entities';
+import { Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
 
 @Entity()
 export class Users {
