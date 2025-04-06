@@ -6,3 +6,8 @@ export enum TypeEnum {
   BOARD_LIKE_REMOVE = 'BOARD_LIKE_REMOVE',
   BOARD_COMMENT_CREATE = 'BOARD_COMMENT_CREATE',
 }
+
+export enum PayloadEnum {
+  CREATE = 'CREATE',
+  DELETE = 'DELETE',
+}

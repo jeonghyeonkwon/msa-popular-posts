@@ -33,7 +33,7 @@ export class UsersService {
         );
 
         const createdUsers = new Users(data.usersId, data.username);
-        return await this.userRepository.save(createdUsers);
+        return await this.createAuth(createdUsers);
       } catch (error) {
         console.error(error);
       }

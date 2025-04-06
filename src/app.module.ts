@@ -9,6 +9,7 @@ import { KAFKA_OPTION, TYPEORM_OPTION } from './constants';
 import { AppController } from './app.controller';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { DataSource } from 'typeorm';
+import { RedisPopularModule } from './redis/redis.module';
 
 @Module({
   imports: [
@@ -17,12 +18,12 @@ import { DataSource } from 'typeorm';
     ClientsModule.register([
       {
         name: 'KAFKA_CLIENT',
-        transport: Transport.KAFKA,
-        options: KAFKA_OPTION as any,
+        ...(KAFKA_OPTION as any),
       },
     ]),
     PostsModule,
     UsersModule,
+    RedisPopularModule,
   ],
   controllers: [AppController],
   providers: [],

@@ -5,9 +5,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Posts } from './posts.entities';
 import { Users } from 'src/users/users.entities';
 import { UsersModule } from 'src/users/users.module';
+import { RedisPopularModule } from 'src/redis/redis.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Posts, Users]), UsersModule],
+  imports: [
+    TypeOrmModule.forFeature([Posts, Users]),
+    UsersModule,
+    RedisPopularModule,
+  ],
   controllers: [PostsController],
   providers: [PostsService],
 })

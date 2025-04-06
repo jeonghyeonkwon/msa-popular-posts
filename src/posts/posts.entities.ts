@@ -8,6 +8,9 @@ export class Posts {
   @Column()
   title: string;
 
+  @Column()
+  rankScore: number;
+
   @Column({ type: 'timestamp' })
   createdAt: Date;
 
@@ -18,6 +21,7 @@ export class Posts {
   constructor(postsId: string, title: string, createdAt: string) {
     this.id = postsId;
     this.title = title;
+    this.rankScore = 0;
     this.createdAt = new Date(createdAt);
   }
 }
