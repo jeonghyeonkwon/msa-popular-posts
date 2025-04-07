@@ -37,6 +37,14 @@ export class PostsController {
     if (response.type === TypeEnum.BOARD_VIEW) {
       const { payload } = response as KafkaMessageDto<BoardEtcPayload>;
       console.log('게시글 조회', payload.boardId);
+
+      const isExist = await this.redisService.isExistMember(payload.boardId);
+      if (!isExist) {
+        const posts = await this.postsService.checkAndCreatePosts(
+          payload.boardId,
+        );
+        await this.redisService.syncData(posts);
+      }
       await this.redisService.setViewScore(payload.boardId);
       return;
     }
@@ -46,6 +54,14 @@ export class PostsController {
     if (response.type === TypeEnum.BOARD_COMMENT_CREATE) {
       const { payload } = response as KafkaMessageDto<BoardEtcPayload>;
       console.log('댓글 생성', payload.boardId);
+
+      const isExist = await this.redisService.isExistMember(payload.boardId);
+      if (!isExist) {
+        const posts = await this.postsService.checkAndCreatePosts(
+          payload.boardId,
+        );
+        await this.redisService.syncData(posts);
+      }
       await this.redisService.setCommentCreatedScore(payload.boardId);
       return;
     }
@@ -55,12 +71,28 @@ export class PostsController {
     if (response.type === TypeEnum.BOARD_LIKE_CREATE) {
       const { payload } = response as KafkaMessageDto<BoardEtcPayload>;
       console.log('좋아요 추가', payload.boardId);
+
+      const isExist = await this.redisService.isExistMember(payload.boardId);
+      if (!isExist) {
+        const posts = await this.postsService.checkAndCreatePosts(
+          payload.boardId,
+        );
+        await this.redisService.syncData(posts);
+      }
       await this.redisService.setLikeCreateScore(payload.boardId);
       return;
     }
     if (response.type === TypeEnum.BOARD_LIKE_REMOVE) {
       const { payload } = response as KafkaMessageDto<BoardEtcPayload>;
       console.log('좋아요 삭제', payload.boardId);
+
+      const isExist = await this.redisService.isExistMember(payload.boardId);
+      if (!isExist) {
+        const posts = await this.postsService.checkAndCreatePosts(
+          payload.boardId,
+        );
+        await this.redisService.syncData(posts);
+      }
       await this.redisService.setLikeRemoveScore(payload.boardId);
       return;
     }
