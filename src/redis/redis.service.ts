@@ -11,12 +11,13 @@ export class RedisService {
 
   constructor(@InjectRedis() private readonly redis: Redis) {}
 
-  async setPosts(days: string, postsId: string) {
+  async setPosts(days: string, postsId: string, limit: number) {
     await this.redis.zadd(
       this.ZADD_KEY(days),
       SCORE_ENUM.CREATE_BOARD_SCORE,
       postsId,
     );
+    await this.redis.zrevrange(this.ZADD_KEY(days), 0, -limit - 1);
   }
 
   async setViewScore(days: string, postsId: string) {
@@ -61,5 +62,9 @@ export class RedisService {
     );
 
     await this.redis.zadd(this.ZADD_KEY(days), rankScore, posts.id);
+  }
+
+  async getTop10Posts(days: string): Promise<string[]> {
+    return await this.redis.zrevrange(this.ZADD_KEY(days), 0, -1);
   }
 }

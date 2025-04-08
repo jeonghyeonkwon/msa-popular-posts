@@ -1,4 +1,4 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import {
@@ -11,7 +11,7 @@ import { Posts } from './posts.entities';
 import { RedisService } from 'src/redis/redis.service';
 import { getRedisKey } from 'src/util/custom-date';
 
-@Controller('posts')
+@Controller('api')
 export class PostsController {
   constructor(
     private readonly postsService: PostsService,
@@ -31,6 +31,7 @@ export class PostsController {
       await this.redisService.setPosts(
         getRedisKey(new Date(payload.createdAt)),
         payload.boardId,
+        10,
       );
     }
 
@@ -137,5 +138,12 @@ export class PostsController {
       );
       return;
     }
+  }
+
+  @Get('popular-posts')
+  async getPopularPosts(@Query('d') days: string) {
+    const postIds: string[] = await this.redisService.getTop10Posts(days);
+
+    return this.postsService.getPostsByIds(postIds);
   }
 }

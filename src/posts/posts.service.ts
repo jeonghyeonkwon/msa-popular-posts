@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Posts } from './posts.entities';
 import { UsersService } from 'src/users/users.service';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
-import { PopularPostsDto } from './dtos/response';
+import { PopularResponseDto, RequestServiceDto } from './dtos/response';
 
 @Injectable()
 export class PostsService {
@@ -31,7 +31,7 @@ export class PostsService {
     if (!posts) {
       try {
         const { data } = await firstValueFrom(
-          this.httpService.get<PopularPostsDto>(
+          this.httpService.get<RequestServiceDto>(
             `${process.env.BOARD_SERVICE}/api/popular-posts/${postsId}`,
           ),
         );
@@ -52,5 +52,15 @@ export class PostsService {
       }
     }
     return posts!;
+  }
+
+  async getPostsByIds(postsIds: string[]) {
+    const posts = await this.postsRepository.find({
+      where: {
+        id: In(postsIds),
+      },
+    });
+
+    return posts.map((post) => new PopularResponseDto(post));
   }
 }
