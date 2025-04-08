@@ -7,59 +7,59 @@ import { SCORE_ENUM } from 'src/posts/posts.enum';
 import { calculatorScore } from 'src/util/calculator';
 @Injectable()
 export class RedisService {
-  ZADD_KEY: string = 'POPULAR_BOARD';
+  ZADD_KEY = (days: string): string => `popular-board::${days}`;
 
   constructor(@InjectRedis() private readonly redis: Redis) {}
 
-  async setPosts(postsId: string) {
+  async setPosts(days: string, postsId: string) {
     await this.redis.zadd(
-      this.ZADD_KEY,
+      this.ZADD_KEY(days),
       SCORE_ENUM.CREATE_BOARD_SCORE,
       postsId,
     );
   }
 
-  async setViewScore(postsId: string) {
+  async setViewScore(days: string, postsId: string) {
     await this.redis.zincrby(
-      this.ZADD_KEY,
+      this.ZADD_KEY(days),
       SCORE_ENUM.BOARD_VIEW_SCORE,
       postsId,
     );
   }
-  async setLikeCreateScore(postsId: string) {
+  async setLikeCreateScore(days: string, postsId: string) {
     await this.redis.zincrby(
-      this.ZADD_KEY,
+      this.ZADD_KEY(days),
       SCORE_ENUM.BOARD_LIKE_CREATE_SCORE,
       postsId,
     );
   }
-  async setLikeRemoveScore(postsId: string) {
+  async setLikeRemoveScore(days: string, postsId: string) {
     await this.redis.zincrby(
-      this.ZADD_KEY,
+      this.ZADD_KEY(days),
       SCORE_ENUM.BOARD_LIKE_DELETE_SCORE,
       postsId,
     );
   }
-  async setCommentCreatedScore(postsId: string) {
+  async setCommentCreatedScore(days: string, postsId: string) {
     await this.redis.zincrby(
-      this.ZADD_KEY,
+      this.ZADD_KEY(days),
       SCORE_ENUM.BOARD_COMMENT_CREATE_SCORE,
       postsId,
     );
   }
 
-  async isExistMember(postsId: string) {
-    const response = await this.redis.zscore(this.ZADD_KEY, postsId);
+  async isExistMember(days: string, postsId: string) {
+    const response = await this.redis.zscore(this.ZADD_KEY(days), postsId);
 
     return response !== null;
   }
-  async syncData(posts: Posts) {
+  async syncData(days: string, posts: Posts) {
     const rankScore = calculatorScore(
       posts.viewCount,
       posts.likeCount,
       posts.commentCount,
     );
 
-    await this.redis.zadd(this.ZADD_KEY, rankScore, posts.id);
+    await this.redis.zadd(this.ZADD_KEY(days), rankScore, posts.id);
   }
 }

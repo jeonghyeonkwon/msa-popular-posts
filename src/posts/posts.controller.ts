@@ -9,6 +9,7 @@ import { TypeEnum } from 'src/kafka/dtos/type.enum';
 import { KafkaMessageDto } from 'src/kafka/dtos/message.dto';
 import { Posts } from './posts.entities';
 import { RedisService } from 'src/redis/redis.service';
+import { getRedisKey } from 'src/util/custom-date';
 
 @Controller('posts')
 export class PostsController {
@@ -27,7 +28,10 @@ export class PostsController {
         payload.createdAt,
       );
       await this.postsService.createPosts(payload.usersId, posts);
-      await this.redisService.setPosts(payload.boardId);
+      await this.redisService.setPosts(
+        getRedisKey(new Date(payload.createdAt)),
+        payload.boardId,
+      );
     }
 
     return;
@@ -35,17 +39,27 @@ export class PostsController {
   @MessagePattern('board-view')
   async handleBoardView(@Payload() response: any) {
     if (response.type === TypeEnum.BOARD_VIEW) {
+      console.log(response);
       const { payload } = response as KafkaMessageDto<BoardEtcPayload>;
       console.log('게시글 조회', payload.boardId);
 
-      const isExist = await this.redisService.isExistMember(payload.boardId);
+      const isExist = await this.redisService.isExistMember(
+        getRedisKey(new Date(payload.boardCreatedAt)),
+        payload.boardId,
+      );
       if (!isExist) {
         const posts = await this.postsService.checkAndCreatePosts(
           payload.boardId,
         );
-        await this.redisService.syncData(posts);
+        await this.redisService.syncData(
+          getRedisKey(new Date(payload.boardCreatedAt)),
+          posts,
+        );
       }
-      await this.redisService.setViewScore(payload.boardId);
+      await this.redisService.setViewScore(
+        getRedisKey(new Date(payload.boardCreatedAt)),
+        payload.boardId,
+      );
       return;
     }
   }
@@ -55,14 +69,23 @@ export class PostsController {
       const { payload } = response as KafkaMessageDto<BoardEtcPayload>;
       console.log('댓글 생성', payload.boardId);
 
-      const isExist = await this.redisService.isExistMember(payload.boardId);
+      const isExist = await this.redisService.isExistMember(
+        getRedisKey(new Date(payload.boardCreatedAt)),
+        payload.boardId,
+      );
       if (!isExist) {
         const posts = await this.postsService.checkAndCreatePosts(
           payload.boardId,
         );
-        await this.redisService.syncData(posts);
+        await this.redisService.syncData(
+          getRedisKey(new Date(payload.boardCreatedAt)),
+          posts,
+        );
       }
-      await this.redisService.setCommentCreatedScore(payload.boardId);
+      await this.redisService.setCommentCreatedScore(
+        getRedisKey(new Date(payload.boardCreatedAt)),
+        payload.boardId,
+      );
       return;
     }
   }
@@ -72,28 +95,46 @@ export class PostsController {
       const { payload } = response as KafkaMessageDto<BoardEtcPayload>;
       console.log('좋아요 추가', payload.boardId);
 
-      const isExist = await this.redisService.isExistMember(payload.boardId);
+      const isExist = await this.redisService.isExistMember(
+        getRedisKey(new Date(payload.boardCreatedAt)),
+        payload.boardId,
+      );
       if (!isExist) {
         const posts = await this.postsService.checkAndCreatePosts(
           payload.boardId,
         );
-        await this.redisService.syncData(posts);
+        await this.redisService.syncData(
+          getRedisKey(new Date(payload.boardCreatedAt)),
+          posts,
+        );
       }
-      await this.redisService.setLikeCreateScore(payload.boardId);
+      await this.redisService.setLikeCreateScore(
+        getRedisKey(new Date(payload.boardCreatedAt)),
+        payload.boardId,
+      );
       return;
     }
     if (response.type === TypeEnum.BOARD_LIKE_REMOVE) {
       const { payload } = response as KafkaMessageDto<BoardEtcPayload>;
       console.log('좋아요 삭제', payload.boardId);
 
-      const isExist = await this.redisService.isExistMember(payload.boardId);
+      const isExist = await this.redisService.isExistMember(
+        getRedisKey(new Date(payload.boardCreatedAt)),
+        payload.boardId,
+      );
       if (!isExist) {
         const posts = await this.postsService.checkAndCreatePosts(
           payload.boardId,
         );
-        await this.redisService.syncData(posts);
+        await this.redisService.syncData(
+          getRedisKey(new Date(payload.boardCreatedAt)),
+          posts,
+        );
       }
-      await this.redisService.setLikeRemoveScore(payload.boardId);
+      await this.redisService.setLikeRemoveScore(
+        getRedisKey(new Date(payload.boardCreatedAt)),
+        payload.boardId,
+      );
       return;
     }
   }

@@ -14,5 +14,5 @@ export class BoardCreatePayload {
 
 export class BoardEtcPayload {
   boardId: string;
-  type?: PayloadEnum;
+  boardCreatedAt: string;
 }
