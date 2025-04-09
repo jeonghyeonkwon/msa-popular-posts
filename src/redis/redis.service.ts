@@ -5,19 +5,20 @@ import Redis from 'ioredis';
 import { Posts } from 'src/posts/posts.entities';
 import { SCORE_ENUM } from 'src/posts/posts.enum';
 import { calculatorScore } from 'src/util/calculator';
+import { PopularDaysDto } from 'src/posts/dtos/response';
 @Injectable()
 export class RedisService {
   ZADD_KEY = (days: string): string => `popular-board::${days}`;
+  DAYS_SPLILIT_DELIMITER = '::';
 
   constructor(@InjectRedis() private readonly redis: Redis) {}
 
-  async setPosts(days: string, postsId: string, limit: number) {
+  async setPosts(days: string, postsId: string) {
     await this.redis.zadd(
       this.ZADD_KEY(days),
       SCORE_ENUM.CREATE_BOARD_SCORE,
       postsId,
     );
-    await this.redis.zrevrange(this.ZADD_KEY(days), 0, -limit - 1);
   }
 
   async setViewScore(days: string, postsId: string) {
@@ -62,6 +63,14 @@ export class RedisService {
     );
 
     await this.redis.zadd(this.ZADD_KEY(days), rankScore, posts.id);
+  }
+
+  async getDays() {
+    const response = await this.redis.scan(0);
+    const days = response[1].map(
+      (days) => days.split(this.DAYS_SPLILIT_DELIMITER)[1],
+    );
+    return new PopularDaysDto(days);
   }
 
   async getTop10Posts(days: string): Promise<string[]> {

@@ -1,4 +1,4 @@
-import { toStringByDate } from 'src/util/custom-date';
+import { toStringByDate, toStringByDateTime } from 'src/util/custom-date';
 import { Posts } from '../posts.entities';
 
 export class RequestServiceDto {
@@ -16,11 +16,26 @@ export class PopularResponseDto {
   title: string;
   comentCount: number;
   createdAt: string;
-
+  username: string;
   constructor(posts: Posts) {
     this.boardId = posts.id;
     this.title = posts.title;
     this.comentCount = posts.commentCount;
-    this.createdAt = toStringByDate(posts.createdAt);
+    this.createdAt = toStringByDateTime(posts.createdAt);
+    this.username = posts.user.username;
+  }
+}
+export class PopularDaysDto {
+  data: PopularDayDto[];
+  constructor(days: string[]) {
+    this.data = days.map((day) => new PopularDayDto(day, toStringByDate(day)));
+  }
+}
+export class PopularDayDto {
+  key: string;
+  message: string;
+  constructor(key: string, message: string) {
+    this.key = key;
+    this.message = message;
   }
 }

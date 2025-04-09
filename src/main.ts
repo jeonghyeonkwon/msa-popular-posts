@@ -14,7 +14,7 @@ async function bootstrap() {
     ...KAFKA_OPTION,
   });
 
-  await app.startAllMicroservices();
+  app.startAllMicroservices();
   await app.listen(process.env.PORT ?? 8084);
 }
 bootstrap();

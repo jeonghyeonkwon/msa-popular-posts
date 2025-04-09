@@ -24,7 +24,7 @@ export const TYPEORM_OPTION: TypeOrmModuleOptions = {
   password: process.env.DB_PASS,
   database: process.env.DB_DATABASE,
   entities: [Users, Posts],
-  synchronize: true,
+  synchronize: false,
   logging: true,
 };
 
