@@ -69,7 +69,7 @@ export class PostsController {
         return;
       }
 
-      // 7일 이전이라면 게시글 생성 체크 후 조회수 UP
+      // 7일 이전이라면 게시글 체크 후 없다면 생성
       await this.postsService.checkAndCreatePosts(payload.boardId);
 
       return;
@@ -161,7 +161,7 @@ export class PostsController {
     }
   }
 
-  @Get('days')
+  @Get('popular-posts/days')
   async getDays() {
     return await this.redisService.getDays();
   }
