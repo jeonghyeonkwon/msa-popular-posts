@@ -7,6 +7,7 @@ import { Users } from 'src/users/users.entities';
 import { UsersModule } from 'src/users/users.module';
 import { RedisPopularModule } from 'src/redis/redis.module';
 import { HttpModule } from '@nestjs/axios';
+import { PostsRepository } from './posts.repository';
 
 @Module({
   imports: [
@@ -16,6 +17,6 @@ import { HttpModule } from '@nestjs/axios';
     RedisPopularModule,
   ],
   controllers: [PostsController],
-  providers: [PostsService],
+  providers: [PostsService, PostsRepository],
 })
 export class PostsModule {}
