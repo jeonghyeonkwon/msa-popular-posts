@@ -57,4 +57,13 @@ export class PostsService {
     console.log(posts);
     return posts.map((post) => new PopularResponseDto(post));
   }
+
+  async checkAndAddCommentCountById(postsId: string) {
+    const response = await this.postsRepository.addCommentCountByIds(postsId);
+    if (response.affected === 0) {
+      return await this.checkAndCreatePosts(postsId);
+    }
+
+    return await this.postsRepository.findById(postsId);
+  }
 }

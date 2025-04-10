@@ -14,13 +14,13 @@ export class RequestServiceDto {
 export class PopularResponseDto {
   boardId: string;
   title: string;
-  comentCount: number;
+  commentCount: number;
   createdAt: string;
   username: string;
   constructor(posts: Posts) {
     this.boardId = posts.id;
     this.title = posts.title;
-    this.comentCount = posts.commentCount;
+    this.commentCount = posts.commentCount;
     this.createdAt = toStringByDateTime(posts.createdAt);
     this.username = posts.user.username;
   }

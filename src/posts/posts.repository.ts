@@ -8,6 +8,10 @@ export class PostsRepository extends Repository<Posts> {
     super(Posts, dataSource.createEntityManager());
   }
 
+  async createPosts(posts: Posts) {
+    return await this.insert(posts);
+  }
+
   async findById(postsId: string) {
     return await this.findOne({
       where: {
@@ -23,5 +27,12 @@ export class PostsRepository extends Repository<Posts> {
       },
       relations: ['user'],
     });
+  }
+
+  async addCommentCountByIds(postsId: string) {
+    return await this.update(
+      { id: postsId },
+      { commentCount: () => 'commentCount + 1' },
+    );
   }
 }

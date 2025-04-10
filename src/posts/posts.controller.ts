@@ -83,24 +83,29 @@ export class PostsController {
 
       const postCreatedAt = new Date(payload.boardCreatedAt);
 
+      //1. 댓글 카운트 + 1 해야되니 db 체크 및 update
+
+      const posts = await this.postsService.checkAndAddCommentCountById(
+        payload.boardId,
+      );
+
+      //2. 7일 이내 게시글이면 redis score UP!
       if (isWithinLastWeek(postCreatedAt)) {
         const isExist = await this.redisService.isExistMember(
           getRedisKey(postCreatedAt),
           payload.boardId,
         );
         if (!isExist) {
-          const posts = await this.postsService.checkAndCreatePosts(
-            payload.boardId,
-          );
-          await this.redisService.syncData(getRedisKey(postCreatedAt), posts);
+          await this.redisService.syncData(getRedisKey(postCreatedAt), posts!);
+          return;
         }
+
         await this.redisService.setCommentCreatedScore(
           getRedisKey(postCreatedAt),
           payload.boardId,
         );
         return;
       }
-      await this.postsService.checkAndCreatePosts(payload.boardId);
       return;
     }
   }
@@ -161,14 +166,13 @@ export class PostsController {
     }
   }
 
-  @Get('popular-posts/days')
-  async getDays() {
-    return await this.redisService.getDays();
-  }
-
   @Get('popular-posts')
   async getPopularPosts(@Query('d') days: string) {
     const postIds: string[] = await this.redisService.getTop10Posts(days);
     return this.postsService.getPostsByIds(postIds);
+  }
+  @Get('popular-posts/days')
+  async getDays() {
+    return await this.redisService.getDays();
   }
 }
